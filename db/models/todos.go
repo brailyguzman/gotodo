@@ -14,5 +14,8 @@ type Todo struct {
 
 func (Todo) Create(db *gorm.DB, todo *Todo) error {
 	var err error
+
+	// TODO: Implement the logic to create a new todo item
+
 	return err
 }
