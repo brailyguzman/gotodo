@@ -10,6 +10,5 @@ type User struct {
 }
 
 func (User) Create(db *gorm.DB, user *User) error {
-	var err error
-	return err
+	return db.Create(user).Error
 }
