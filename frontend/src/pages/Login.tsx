@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface LoginData {
   email: string;
@@ -83,9 +84,9 @@ const Login = () => {
 
         <p className="mt-4 text-sm text-center text-gray-600">
           Don't have an account?{' '}
-          <a href="/register" className="text-blue-600 hover:underline">
+          <Link to="/signup" className="text-blue-600 hover:underline">
             Register
-          </a>
+          </Link>
         </p>
 
         {error && (
