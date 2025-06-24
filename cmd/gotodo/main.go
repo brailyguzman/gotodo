@@ -6,7 +6,6 @@ import (
 
 	"github.com/brailyguzman/gotodo/db"
 	"github.com/brailyguzman/gotodo/internal/handlers"
-	"github.com/brailyguzman/gotodo/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -14,19 +13,18 @@ import (
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 
-	r.GET("/health", handlers.HealthCheck)
-	auth := r.Group("/auth")
+	api := r.Group("/api")
 	{
-		auth.POST("/signup", handlers.CreateUser)
-		auth.POST("/login", handlers.LoginUser)
-		auth.POST("/logout", handlers.LogoutUser)
-		auth.GET("/me", handlers.GetCurrentUser)
-	}
+		api.GET("/health", handlers.HealthCheck)
 
-	// use middleware with group for todos
-	todos := r.Group("/todos", middleware.AuthMiddleware())
-	{
-		// TODO: Implement the handlers for todos
+		auth := api.Group("/auth")
+		{
+			auth.POST("/signup", handlers.CreateUser)
+			auth.POST("/login", handlers.LoginUser)
+			auth.POST("/logout", handlers.LogoutUser)
+			auth.GET("/me", handlers.GetCurrentUser)
+		}
+
 	}
 
 	return r
