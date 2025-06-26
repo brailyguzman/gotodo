@@ -3,31 +3,32 @@ package middleware
 import (
 	"github.com/brailyguzman/gotodo/db"
 	"github.com/brailyguzman/gotodo/db/models"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		var user models.User
 
-		// Get the user ID from the context
-		userID, err := c.Cookie("user_id")
+		session := sessions.Default(ctx)
+		userID := session.Get("user_id")
 
-		if err != nil {
-			c.JSON(401, gin.H{"error": "Unauthorized"})
-			c.Abort()
+		if userID == nil {
+			ctx.JSON(401, gin.H{"error": "Unauthorized"})
+			ctx.Abort()
 			return
 		}
 
 		// Fetch the user from the database
 		if err := db.DB.First(&user, userID).Error; err != nil {
-			c.JSON(404, gin.H{"error": "User not found"})
-			c.Abort()
+			ctx.JSON(404, gin.H{"error": "User not found"})
+			ctx.Abort()
 			return
 		}
 
 		// Set the user in the context
-		c.Set("user", user)
-		c.Next()
+		ctx.Set("user", user)
+		ctx.Next()
 	}
 }

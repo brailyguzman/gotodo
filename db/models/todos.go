@@ -4,18 +4,15 @@ import "gorm.io/gorm"
 
 type Todo struct {
 	gorm.Model
-
-	Title       string `json:"title" gorm:"not null"`
-	Description string `json:"description"`
-	Done        bool   `json:"done" gorm:"default:false"`
-	UserID      uint   `json:"user_id" gorm:"not null"`
-	User        User   `json:"user" gorm:"foreignKey:UserID;references:ID"`
+	Text   string `json:"text" gorm:"not null"`
+	Done   bool   `json:"done" gorm:"default:false"`
+	UserID uint   `json:"user_id" gorm:"not null"`
 }
 
 func (Todo) Create(db *gorm.DB, todo *Todo) error {
-	var err error
+	return db.Create(todo).Error
+}
 
-	// TODO: Implement the logic to create a new todo item
-
-	return err
+func (Todo) Delete(db *gorm.DB, todo *Todo) error {
+	return db.Delete(todo).Error
 }

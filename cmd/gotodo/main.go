@@ -6,6 +6,7 @@ import (
 
 	"github.com/brailyguzman/gotodo/db"
 	"github.com/brailyguzman/gotodo/internal/handlers"
+	"github.com/brailyguzman/gotodo/internal/middleware"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,11 @@ func NewRouter() *gin.Engine {
 			auth.POST("/login", handlers.LoginUser)
 			auth.POST("/logout", handlers.LogoutUser)
 			auth.GET("/me", handlers.GetCurrentUser)
+		}
+
+		todos := api.Group("/todos", middleware.AuthMiddleware())
+		{
+			todos.POST("/", handlers.CreateTodo)
 		}
 
 	}

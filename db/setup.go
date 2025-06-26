@@ -32,5 +32,13 @@ func Migrate() {
 		}
 	}
 
+	if !DB.Migrator().HasTable("todos") {
+		err := DB.AutoMigrate(&models.Todo{})
+
+		if err != nil {
+			log.Fatalf("Failed to migrate database: %v", err)
+		}
+	}
+
 	log.Println("Database migration completed successfully")
 }

@@ -74,12 +74,8 @@ func CreateUser(ctx *gin.Context) {
 }
 
 func GetCurrentUser(ctx *gin.Context) {
-	userID, err := ctx.Cookie("user_id")
-
-	if err != nil {
-		ctx.JSON(401, gin.H{"error": "Unauthorized"})
-		return
-	}
+	session := sessions.Default(ctx)
+	userID := session.Get("user_id")
 
 	var user models.User
 
