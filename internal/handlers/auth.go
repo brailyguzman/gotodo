@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/brailyguzman/gotodo/db"
 	"github.com/brailyguzman/gotodo/db/models"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -60,7 +59,12 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	// TODO: Encrypt user ID in cookie
-	ctx.SetCookie("user_id", fmt.Sprint(newUser.ID), 604800, "/", "", false, true)
+	session := sessions.Default(ctx)
+	session.Set("user_id", newUser.ID)
+	if err := session.Save(); err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to save session"})
+		return
+	}
 
 	ctx.JSON(201, gin.H{"message": "User created successfully", "user": UserResponse{
 		ID:    newUser.ID,
@@ -112,7 +116,13 @@ func LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("user_id", fmt.Sprint(foundUser.ID), 604800, "/", "", false, true)
+	session := sessions.Default(ctx)
+	session.Set("user_id", foundUser.ID)
+
+	if err = session.Save(); err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to save session"})
+		return
+	}
 
 	ctx.JSON(200, gin.H{"message": "Login successful", "user": UserResponse{
 		ID:    foundUser.ID,
@@ -122,6 +132,13 @@ func LoginUser(ctx *gin.Context) {
 }
 
 func LogoutUser(ctx *gin.Context) {
-	ctx.SetCookie("user_id", "", -1, "/", "", false, true)
+	session := sessions.Default(ctx)
+	session.Clear()
+
+	if err := session.Save(); err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to clear session"})
+		return
+	}
+
 	ctx.JSON(200, gin.H{"message": "Logout successful"})
 }

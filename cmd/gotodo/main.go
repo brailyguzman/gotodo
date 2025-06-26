@@ -6,12 +6,18 @@ import (
 
 	"github.com/brailyguzman/gotodo/db"
 	"github.com/brailyguzman/gotodo/internal/handlers"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
+
+	store := cookie.NewStore([]byte(os.Getenv("SESSION_SECRET")))
+
+	r.Use(sessions.Sessions("gotodo_session", store))
 
 	api := r.Group("/api")
 	{
