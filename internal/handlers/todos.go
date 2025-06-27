@@ -19,6 +19,15 @@ type EditTodoRequest struct {
 }
 
 func CreateTodo(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userID := session.Get("user_id")
+	uid, ok := userID.(uint)
+
+	if !ok {
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	var todo CreateTodoRequest
 
 	if err := ctx.BindJSON(&todo); err != nil {
@@ -26,18 +35,9 @@ func CreateTodo(ctx *gin.Context) {
 		return
 	}
 
-	// Assuming the user ID is stored in the session
-	session := sessions.Default(ctx)
-	userID := session.Get("user_id")
-
-	if userID == nil {
-		ctx.JSON(401, gin.H{"error": "Unauthorized"})
-		return
-	}
-
 	newTodo := models.Todo{
 		Text:   todo.Text,
-		UserID: userID.(uint),
+		UserID: uid,
 	}
 
 	if err := newTodo.Create(db.DB, &newTodo); err != nil {
@@ -49,17 +49,16 @@ func CreateTodo(ctx *gin.Context) {
 }
 
 func EditTodo(ctx *gin.Context) {
-	idStr := ctx.Param("id")
+	session := sessions.Default(ctx)
+	userID := session.Get("user_id")
+	uid, ok := userID.(uint)
 
-	user, exists := ctx.Get("user")
-
-	if !exists {
+	if !ok {
 		ctx.JSON(401, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	u := user.(models.User)
-
+	idStr := ctx.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 
 	if err != nil {
@@ -81,7 +80,7 @@ func EditTodo(ctx *gin.Context) {
 		return
 	}
 
-	if todo.UserID != u.ID {
+	if todo.UserID != uid {
 		ctx.JSON(403, gin.H{"error": "Forbidden"})
 		return
 	}
@@ -95,4 +94,42 @@ func EditTodo(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, gin.H{"message": "Updated successfully"})
+}
+
+func DeleteTodo(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userID := session.Get("user_id")
+	uid, ok := userID.(uint)
+
+	if !ok {
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var todo models.Todo
+
+	if err := db.DB.First(&todo, uint(id)).Error; err != nil {
+		ctx.JSON(404, gin.H{"error": "Todo not found"})
+		return
+	}
+
+	if todo.UserID != uid {
+		ctx.JSON(403, gin.H{"error": "Forbidden"})
+		return
+	}
+
+	if err := todo.Delete(db.DB, &todo); err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to delete todo"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"message": "Deleted Successfully"})
 }

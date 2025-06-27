@@ -36,6 +36,7 @@ func NewRouter() *gin.Engine {
 		{
 			todos.POST("/", handlers.CreateTodo)
 			todos.PATCH("/:id", handlers.EditTodo)
+			todos.DELETE("/:id", handlers.DeleteTodo)
 		}
 
 	}
