@@ -35,6 +35,7 @@ func NewRouter() *gin.Engine {
 		todos := api.Group("/todos", middleware.AuthMiddleware())
 		{
 			todos.POST("/", handlers.CreateTodo)
+			todos.PATCH("/:id", handlers.EditTodo)
 		}
 
 	}
