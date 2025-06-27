@@ -40,12 +40,32 @@ func CreateTodo(ctx *gin.Context) {
 		UserID: uid,
 	}
 
-	if err := db.DB.Create(newTodo).Error; err != nil {
+	if err := db.DB.Create(&newTodo).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to create todo"})
 		return
 	}
 
 	ctx.JSON(201, gin.H{"message": "Todo created successfully", "id": newTodo.ID})
+}
+
+func GetTodos(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userID := session.Get("user_id")
+	uid, ok := userID.(uint)
+
+	if !ok {
+		ctx.JSON(400, gin.H{"error": "Invalid request body"})
+	}
+	var todos []models.Todo
+
+	// Get Todos with the ID
+
+	if err := db.DB.Where("user_id = ?", uid).Find(&todos).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to fetch todos"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"todos": todos})
 }
 
 func EditTodo(ctx *gin.Context) {
@@ -126,7 +146,7 @@ func DeleteTodo(ctx *gin.Context) {
 		return
 	}
 
-	if err := db.DB.Delete(todo).Error; err != nil {
+	if err := db.DB.Delete(&todo).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to delete todo"})
 		return
 	}

@@ -53,7 +53,7 @@ func CreateUser(ctx *gin.Context) {
 		PasswordHash: string(hash),
 	}
 
-	if err := db.DB.Create(newUser); err != nil {
+	if err := db.DB.Create(&newUser); err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to create user"})
 		return
 	}
