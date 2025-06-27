@@ -40,7 +40,7 @@ func CreateTodo(ctx *gin.Context) {
 		UserID: uid,
 	}
 
-	if err := newTodo.Create(db.DB, &newTodo); err != nil {
+	if err := db.DB.Create(newTodo).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to create todo"})
 		return
 	}
@@ -126,7 +126,7 @@ func DeleteTodo(ctx *gin.Context) {
 		return
 	}
 
-	if err := todo.Delete(db.DB, &todo); err != nil {
+	if err := db.DB.Delete(todo).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to delete todo"})
 		return
 	}

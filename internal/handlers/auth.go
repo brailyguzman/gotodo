@@ -53,12 +53,11 @@ func CreateUser(ctx *gin.Context) {
 		PasswordHash: string(hash),
 	}
 
-	if err := newUser.Create(db.DB, &newUser); err != nil {
+	if err := db.DB.Create(newUser); err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to create user"})
 		return
 	}
 
-	// TODO: Encrypt user ID in cookie
 	session := sessions.Default(ctx)
 	session.Set("user_id", newUser.ID)
 	if err := session.Save(); err != nil {

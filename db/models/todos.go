@@ -8,11 +8,3 @@ type Todo struct {
 	Done   bool   `json:"done" gorm:"default:false"`
 	UserID uint   `json:"user_id" gorm:"not null"`
 }
-
-func (Todo) Create(db *gorm.DB, todo *Todo) error {
-	return db.Create(todo).Error
-}
-
-func (Todo) Delete(db *gorm.DB, todo *Todo) error {
-	return db.Delete(todo).Error
-}
