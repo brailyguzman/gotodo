@@ -1,6 +1,7 @@
 import axios from 'axios';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import CurrentUserContext from '../context/current-user-context';
 
 interface LoginData {
   email: string;
@@ -13,6 +14,9 @@ const Login = () => {
     password: '',
   });
   const [error, setError] = useState<string | null>(null);
+  const { setCurrentUser } = useContext(CurrentUserContext);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +24,10 @@ const Login = () => {
     const { email, password } = data;
 
     try {
-      await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post('/api/auth/login', { email, password });
+      setCurrentUser(response.data.user);
 
-      window.location.href = '/';
+      navigate('/');
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
         const errorMessage =
