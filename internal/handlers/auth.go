@@ -76,6 +76,11 @@ func GetCurrentUser(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	userID := session.Get("user_id")
 
+	if userID == nil {
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	var user models.User
 
 	if err := db.DB.First(&user, userID).Error; err != nil {
@@ -83,11 +88,11 @@ func GetCurrentUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, UserResponse{
+	ctx.JSON(200, gin.H{"user": UserResponse{
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
-	})
+	}})
 }
 
 func LoginUser(ctx *gin.Context) {
