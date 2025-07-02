@@ -28,8 +28,8 @@ func NewRouter() *gin.Engine {
 		{
 			auth.POST("/signup", handlers.CreateUser)
 			auth.POST("/login", handlers.LoginUser)
-			auth.POST("/logout", handlers.LogoutUser)
 			auth.GET("/me", handlers.GetCurrentUser)
+			auth.POST("/logout", middleware.AuthMiddleware(), handlers.LogoutUser)
 		}
 
 		todos := api.Group("/todos", middleware.AuthMiddleware())
